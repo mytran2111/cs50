@@ -1,96 +1,73 @@
-# include <cs50.h>
 # include <stdio.h>
+# include <cs50.h>
 # include <string.h>
 # include <ctype.h>
+# include <math.h>
 
-bool check_duplicate(string s)
+
+int main(void)
 {
-    bool alpha[256];
-    memset(alpha, 0, sizeof(alpha));
-    // printf("validating string %s with length %i\n", s, (int)strlen(s));
-    for ( int i = 0, n = strlen(s); i < n; i++)
+
+    string input = get_string("Text: ");
+    long letters = 0;
+    long words = 0;
+    long sentences = 0;
+    // Count lettes
+    for (int i = 0, n = strlen(input); i < n ; i+= 1)
     {
-        // ! is not
-        if (!alpha[(int) s[i]])
+        if ( isalpha(input[i]) != 0 )
         {
-            alpha[ (int) s[i]] = 1;
+            letters += 1;
+        }
+    }
+    //printf("Letters are : %li \n", letters);
+
+    // Count words
+    for ( int i = 0, n = strlen(input);i <n; i++)
+    {
+        if (input[i] == ' ')
+        {
+            continue;
         }
         else
         {
-            return 1;
-            // There is at least one duplicate
+            words += 1;
+            int j;
+            for ( j = i; j < n && input[j] != ' '; j++ );
+            // Tuong duong voi for khong nhan lenh gi
+            i = j - 1;
+
         }
-
     }
-    return 0;
-}
+    //printf("Words are : %li\n", words);
 
-int main(int argc, string argv[])
-{
-    if (argc != 2)
+    // Count sentence
+    for  (int i = 0 , n = strlen(input); i < n; i++)
     {
-        printf("Usage: ./substitution KEY\n");
-        return 1;
-    // Message when user does not type in KEY
-    }
-
-    if (strlen(argv[1]) != 26)
-    {
-        printf("Key must contain 26 characters.\n");
-        return 1;
-    }
-    for (int i = 0, n = strlen(argv[1]); i < n; i++)
-    {
-        if (isalpha( argv[1][i]) == 0)
+        if (input[i] == '.' || input[i] == '!' || input[i] == '?')
         {
-            printf("Key must only contain alphabetic characters.\n");
-            return 1;
+            sentences += 1;
         }
+    }
+    //printf("Sentences are : %li\n", sentences);
 
-    }
-    // TODO: Check the duplicate of the key and display message "Key must not contain repeated characters"
-    if (check_duplicate(argv[1]))
+    // Find index
+    // L is average number of letters per 100 words:
+    double L =  ( (double) letters/words) * 100;
+    double S =  ( (double) sentences/words) * 100;
+    double index = 0.0588 * L - 0.296*S -15.8;
+    index = round(index);
+    if (index < 1)
     {
-        printf("Key must not contain repeated characters.\n");
-        return 1;
+        printf("Before Grade 1\n");
     }
-    string text = get_string("plaintext: ");
-    char cipher[256];
-    // set ve gia tri mac dinh
-    memset(cipher, 0, sizeof(cipher));
-    int index;
-    for (int i = 0, n = strlen(text); i < n; i++)
+    else if (index >= 16 )
     {
-
-        if ( isalpha(text[i]) == 0)
-        {
-            cipher[i] = text[i];
-        }
-        if ( islower(text[i]) != 0)
-        {
-            index = text[i] - 'a';
-            if (islower(argv[1][index]) != 0 )
-            {
-                cipher[i] = argv[1][index];
-            }
-            else
-            {
-                cipher[i] = argv[1][index] + 32;
-            }
-        }
-        else if (isupper(text[i]) != 0)
-        {
-            index = text[i] - 'A';
-            if (isupper(argv[1][index]) != 0 )
-            {
-                cipher[i] = argv[1][index];
-            }
-            else
-            {
-                cipher[i] = argv[1][index] - 32;
-            }
-        }
+        printf("Grade 16+\n");
     }
-    printf("ciphertext: %s\n", cipher);
+    else
+    {
+        printf("Grade %i\n", (int) index);
+    }
 
 }
